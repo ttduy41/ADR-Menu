@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHADOW SHOP - HỆ THỐNG VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #7b2cbf; --cyan: #00f2ff; --bg: #050505; --card: #12141d; --text: #e2e8f0; --red: #ff4d4d; --green: #00ff88; --orange: #f39c12; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: var(--text); margin: 0; overflow-x: hidden; }
+        
+        /* LOGIN UI */
+        #auth-ui { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, #1a0b2e 0%, #050505 100%); }
+        .auth-card { width: 90%; max-width: 400px; padding: 40px; background: var(--card); border-radius: 30px; border: 2px solid var(--primary); box-shadow: 0 0 30px rgba(123, 44, 191, 0.3); text-align: center; }
+
+        /* HEADER & SIDEBAR */
+        .header { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 100; }
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--card); transition: 0.4s; z-index: 1000; padding: 25px; border-right: 1px solid var(--primary); }
+        .sidebar.active { left: 0; }
+        .menu-item { padding: 15px; cursor: pointer; color: white; display: flex; align-items: center; gap: 12px; border-radius: 10px; transition: 0.3s; margin-bottom: 5px; border-bottom: 1px solid #1e212e; }
+        .menu-item:hover { background: rgba(123, 44, 191, 0.2); color: var(--cyan); }
+
+        /* CONTENT */
+        .container { padding: 15px; max-width: 900px; margin: auto; }
+        .card { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid #2d334a; margin-bottom: 25px; position: relative; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        
+        .badge { position: absolute; top: 15px; right: 15px; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 900; z-index: 10; text-transform: uppercase; }
+        .badge-on { background: var(--green); color: #000; box-shadow: 0 0 15px var(--green); }
+        .badge-off { background: var(--red); color: #fff; box-shadow: 0 0 15px var(--red); }
+
+        .p-info { padding: 20px; }
+        .input-pro { width: 100%; padding: 14px; margin: 10px 0; background: #080a12; border: 1px solid #333; color: white; border-radius: 12px; outline: none; transition: 0.3s; }
+        .input-pro:focus { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
+        
+        .btn-main { width: 100%; padding: 16px; background: var(--cyan); border: none; font-weight: 900; cursor: pointer; border-radius: 12px; color: #000; transition: 0.3s; text-transform: uppercase; }
+        .btn-main:hover { opacity: 0.8; transform: scale(1.02); }
+        .btn-main:disabled { background: #2d334a; color: #64748b; cursor: not-allowed; }
+        
+        .price-big { font-size: 30px; color: var(--cyan); font-weight: 800; margin: 10px 0; display: block; }
+        .key-view { background: rgba(0, 255, 136, 0.05); border: 1px dashed var(--green); padding: 20px; border-radius: 12px; color: var(--green); word-break: break-all; font-family: 'Courier New', monospace; font-size: 1.1rem; }
+        .p-img { width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid #2d334a; }
+
+        /* ZALO FLOATING BUTTON */
+        .zalo-fixed { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; z-index: 9999; background: #0084ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,132,255,0.6); animation: zoom 2s infinite ease-in-out; }
+        .zalo-fixed img { width: 35px; height: 35px; }
+        @keyframes zoom { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+        /* ADMIN & HISTORY */
+        .admin-card-detail { border: 2px solid var(--orange); padding: 20px; margin-bottom: 20px; background: #1a1c26; }
+        .copy-box { display: flex; align-items: center; gap: 10px; background: #050505; padding: 12px; border-radius: 10px; margin: 8px 0; border: 1px solid #333; }
+        .copy-box span { flex: 1; font-family: monospace; color: var(--cyan); font-size: 1.1rem; }
+        .btn-copy { background: none; border: none; color: var(--text); cursor: pointer; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-ui">
+        <div class="auth-card">
+            <div style="font-size: 50px; color: var(--primary); margin-bottom: 10px;"><i class="fas fa-user-shield"></i></div>
+            <h2 style="color:var(--cyan); letter-spacing: 3px; margin-bottom: 5px;">SHADOW SYSTEM</h2>
+            <p style="color: #64748b; font-size: 12px; margin-bottom: 25px;">HỆ THỐNG VIP GAME & ACC FF</p>
+            
+            <input type="text" id="user" class="input-pro" placeholder="Tài khoản...">
+            <input type="password" id="pass" class="input-pro" placeholder="Mật khẩu...">
+            
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn-main" onclick="handleLogin()" style="background: var(--cyan); flex: 1;">ĐĂNG NHẬP</button>
+                <button class="btn-main" onclick="handleRegister()" style="background: var(--primary); color: white; flex: 1;">ĐĂNG KÝ</button>
+            </div>
+            <p id="auth-msg" style="font-size: 13px; margin-top: 20px; color: var(--red); font-weight: bold;"></p>
+        </div>
+    </div>
+
+    <div id="main-app" style="display:none">
+        <div class="header">
+            <i class="fas fa-bars" onclick="toggleSidebar()" style="cursor:pointer; color:var(--cyan); font-size:22px;"></i>
+            <div style="font-weight:900;">SHADOW <span style="color:var(--cyan)">SHOP</span></div>
+            <div id="top-balance" style="color:var(--green); font-weight:bold; background: rgba(0,255,136,0.1); padding: 6px 15px; border-radius: 30px; border: 1px solid var(--green);">0đ</div>
+        </div>
+
+        <div id="sidebar" class="sidebar">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="font-size: 40px; color: var(--cyan);"><i class="fas fa-ghost"></i></div>
+                <h4 id="display-name" style="margin: 10px 0 0 0; color: white;">User</h4>
+            </div>
+            <div class="menu-item" onclick="showPage('home')"><i class="fas fa-shopping-cart"></i> Mua Sản Phẩm</div>
+            <div class="menu-item" onclick="showPage('napthe')"><i class="fas fa-credit-card"></i> Nạp Thẻ Cào</div>
+            <div class="menu-item" onclick="showPage('history')"><i class="fas fa-history"></i> Lịch Sử Đơn</div>
+            
+            <div id="admin-area" style="display:none; border-top: 2px solid var(--primary); margin-top:20px; padding-top: 15px;">
+                <div class="menu-item" onclick="showPage('admin-cards')" style="color:var(--orange)"><i class="fas fa-check-double"></i> DUYỆT THẺ NẠP</div>
+                <div class="menu-item" onclick="showPage('admin-keys')" style="color:var(--cyan)"><i class="fas fa-box"></i> NHẬP KHO HÀNG</div>
+            </div>
+            <div class="menu-item" onclick="logout()" style="color:var(--red); margin-top:40px;"><i class="fas fa-power-off"></i> Đăng xuất</div>
+        </div>
+
+        <div id="page-home" class="container">
+            <div class="card">
+                <div id="status-zygame" class="badge">ĐANG TẢI...</div>
+                <img src="https://i.imgur.com/8Q4S8vB.jpg" class="p-img">
+                <div class="p-info">
+                    <h3>ZYGAME VIP SYSTEM</h3>
+                    <select id="buy-zygame-type" class="input-pro" onchange="checkStockUI('Zygame')">
+                        <option value="35000|1day">Gói 1 Ngày - 35.000đ</option>
+                        <option value="55000|3day">Gói 3 Ngày - 55.000đ</option>
+                        <option value="85000|7day">Gói 7 Ngày - 85.000đ</option>
+                        <option value="130000|30day">Gói 30 Ngày - 130.000đ</option>
+                    </select>
+                    <span class="price-big" id="price-zygame">35.000đ</span>
+                    <button id="btn-zygame" class="btn-main" onclick="buyKey('Zygame')">Mua Ngay</button>
+                </div>
+            </div>
+            </div>
+
+        <div id="page-napthe" class="container" style="display:none">
+            <div class="card p-info">
+                <h3>NẠP THẺ CÀO (ADMIN DUYỆT)</h3>
+                <select id="card-type" class="input-pro" onchange="updateRate()">
+                    <option value="Viettel">Viettel (87%)</option>
+                    <option value="Vinaphone">Vinaphone (90%)</option>
+                    <option value="Mobifone">Mobifone (82%)</option>
+                </select>
+                <select id="card-amount" class="input-pro" onchange="updateRate()">
+                    <option value="10000">10.000đ</option><option value="20000">20.000đ</option>
+                    <option value="50000">50.000đ</option><option value="100000">100.000đ</option>
+                </select>
+                <div style="background:rgba(0,255,136,0.1); padding:15px; border-radius:12px; text-align:center; margin:15px 0; border: 1px solid var(--green);">
+                    <span id="receive-amount" style="color:var(--green); font-weight:bold;">Thực nhận: 8.700đ</span>
+                </div>
+                <input type="text" id="seri" class="input-pro" placeholder="Số Seri">
+                <input type="text" id="pin" class="input-pro" placeholder="Mã thẻ">
+                <button class="btn-main" onclick="requestNap()" style="background: var(--green);">GỬI THẺ</button>
+            </div>
+        </div>
+
+        <div id="page-history" class="container" style="display:none">
+            <h2 style="color:var(--cyan); text-align: center;">LỊCH SỬ MUA HÀNG</h2>
+            <div id="history-list"></div>
+        </div>
+
+        <div id="page-admin-cards" class="container" style="display:none">
+            <h2 style="color:var(--orange); text-align: center;">DUYỆT THẺ NẠP</h2>
+            <div id="admin-card-list"></div>
+        </div>
+
+        <div id="page-admin-keys" class="container" style="display:none">
+            <div class="card p-info">
+                <h3>NHẬP KHO HÀNG</h3>
+                <select id="adm-p" class="input-pro" onchange="updateAdminTime()">
+                    <option value="Zygame">Zygame</option><option value="Drip">Drip</option>
+                </select>
+                <select id="adm-t" class="input-pro"></select>
+                <textarea id="adm-keys" class="input-pro" rows="5" placeholder="Nhập Key (mỗi dòng 1 key)"></textarea>
+                <button class="btn-main" onclick="adminAddKey()">NHẬP KHO</button>
+            </div>
+            <div id="stock-report" class="card p-info" style="font-size:13px;"></div>
+        </div>
+
+        <a href="https://zalo.me/84364684151" target="_blank" class="zalo-fixed">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo">
+        </a>
+    </div>
+
+    <script>
+        // Cấu hình cứng Admin
+        const ADMIN_ACC = { u: "shadow+999", p: "HV0308hv" };
+        const RATES = { "Viettel": 0.87, "Vinaphone": 0.90, "Mobifone": 0.82 };
+
+        // Khởi tạo DATA
+        let data = JSON.parse(localStorage.getItem('shadow_v4_db')) || {
+            currentUser: null,
+            users: {}, 
+            pendingCards: [],
+            orders: {},
+            stock: { "Zygame_1day":[], "Zygame_3day":[], "Zygame_7day":[], "Zygame_30day":[], "Drip_1day":[], "Drip_7day":[], "Drip_30day":[] }
+        };
+
+        function save() { localStorage.setItem('shadow_v4_db', JSON.stringify(data)); }
+
+        // --- HÀM ĐĂNG KÝ ---
+        function handleRegister() {
+            const u = document.getElementById('user').value.trim();
+            const p = document.getElementById('pass').value.trim();
+            const msg = document.getElementById('auth-msg');
+            if(u.length < 4) return msg.innerText = "Tài khoản quá ngắn!";
+            if(data.users[u]) return msg.innerText = "Tài khoản đã tồn tại!";
+            
+            data.users[u] = { pass: p, balance: 0 };
+            save();
+            msg.style.color = "var(--green)";
+            msg.innerText = "Đăng ký thành công! Mời đăng nhập.";
+        }
+
+        // --- HÀM ĐĂNG NHẬP (FIXED) ---
+        function handleLogin() {
+            const u = document.getElementById('user').value.trim();
+            const p = document.getElementById('pass').value.trim();
+            const msg = document.getElementById('auth-msg');
+
+            // 1. Kiểm tra Admin
+            if(u === ADMIN_ACC.u && p === ADMIN_ACC.p) {
+                if(!data.users[u]) data.users[u] = { pass: p, balance: 999999 };
+                data.currentUser = u;
+                save(); loginUI(); return;
+            }
+
+            // 2. Kiểm tra User thường
+            if(data.users[u] && data.users[u].pass === p) {
+                data.currentUser = u;
+                save(); loginUI();
+            } else {
+                msg.innerText = "Sai tài khoản hoặc mật khẩu!";
+            }
+        }
+
+        function loginUI() {
+            document.getElementById('auth-ui').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('display-name').innerText = data.currentUser;
+            document.getElementById('admin-area').style.display = (data.currentUser === ADMIN_ACC.u) ? 'block' : 'none';
+            updateBalanceUI();
+            showPage('home');
+        }
+
+        function logout() { data.currentUser = null; save(); location.reload(); }
+
+        // --- XỬ LÝ KHO & MUA ---
+        function checkStockUI(prod) {
+            let select = document.getElementById(`buy-${prod.toLowerCase()}-type`);
+            let key = `${prod}_${select.value.split('|')[1]}`;
+            const count = data.stock[key]?.length || 0;
+            const b = document.getElementById(`status-${prod.toLowerCase()}`);
+            b.innerText = count > 0 ? `CÒN HÀNG (${count})` : "HẾT HÀNG";
+            b.className = count > 0 ? "badge badge-on" : "badge badge-off";
+            document.getElementById(`price-${prod.toLowerCase()}`).innerText = parseInt(select.value.split('|')[0]).toLocaleString() + "đ";
+        }
+
+        function buyKey(prod) {
+            const u = data.users[data.currentUser];
+            let val = document.getElementById(`buy-${prod.toLowerCase()}-type`).value;
+            let [price, time] = val.split('|'); 
+            let keyS = `${prod}_${time}`;
+
+            if(u.balance < price) return alert("Không đủ tiền!");
+            if(data.stock[keyS].length === 0) return alert("Hết hàng!");
+
+            if(confirm(`Mua ${prod} giá ${price}đ?`)) {
+                const key = data.stock[keyS].shift();
+                u.balance -= parseInt(price);
+                if(!data.orders[data.currentUser]) data.orders[data.currentUser] = [];
+                data.orders[data.currentUser].unshift({ name: prod, time, key, date: new Date().toLocaleString() });
+                save(); updateBalanceUI(); checkStockUI(prod); showPage('history');
+            }
+        }
+
+        // --- NẠP THẺ ---
+        function updateRate() {
+            const t = document.getElementById('card-type').value, a = document.getElementById('card-amount').value;
+            document.getElementById('receive-amount').innerText = `Thực nhận: ${Math.floor(a * RATES[t]).toLocaleString()}đ`;
+        }
+
+        function requestNap() {
+            const t = document.getElementById('card-type').value, s = document.getElementById('seri').value, p = document.getElementById('pin').value;
+            if(!s || !p) return alert("Nhập đủ thông tin!");
+            data.pendingCards.push({ user: data.currentUser, type: t, amount: parseInt(document.getElementById('card-amount').value), seri: s, pin: p, rec: Math.floor(document.getElementById('card-amount').value * RATES[t]) });
+            save(); alert("Gửi thành công, đợi admin duyệt!");
+            document.getElementById('seri').value = ""; document.getElementById('pin').value = "";
+        }
+
+        // --- ADMIN ---
+        function renderAdminCards() {
+            let h = "";
+            data.pendingCards.forEach((c, i) => {
+                h += `<div class="card admin-card-detail">
+                    <b>${c.user} - ${c.type} - ${c.amount}đ</b><br>
+                    PIN: ${c.pin} | SERI: ${c.seri}<br>
+                    <button onclick="approveCard(${i})" style="color:green">DUYỆT</button>
+                    <button onclick="data.pendingCards.splice(${i},1);save();renderAdminCards();" style="color:red">XÓA</button>
+                </div>`;
+            });
+            document.getElementById('admin-card-list').innerHTML = h || "Trống";
+        }
+
+        function approveCard(i) {
+            let c = data.pendingCards[i];
+            data.users[c.user].balance += c.rec;
+            data.pendingCards.splice(i,1); save(); renderAdminCards(); updateBalanceUI();
+        }
+
+        function updateAdminTime() {
+            const p = document.getElementById('adm-p').value, t = document.getElementById('adm-t');
+            t.innerHTML = (p==='Zygame') ? `<option value="1day">1day</option><option value="7day">7day</option>` : `<option value="1day">1day</option>`;
+        }
+
+        function adminAddKey() {
+            const p = document.getElementById('adm-p').value, t = document.getElementById('adm-t').value;
+            const keys = document.getElementById('adm-keys').value.split('\n').filter(k=>k);
+            data.stock[`${p}_${t}`].push(...keys);
+            save(); alert("Đã thêm!"); renderStockReport();
+        }
+
+        function renderStockReport() {
+            let h = "KHO: ";
+            for(let k in data.stock) h += `${k}(${data.stock[k].length}) | `;
+            document.getElementById('stock-report').innerText = h;
+        }
+
+        // --- NAV ---
+        function showPage(p) {
+            ['home', 'history', 'napthe', 'admin-keys', 'admin-cards'].forEach(id => {
+                document.getElementById('page-'+id).style.display = (p===id ? 'block' : 'none');
+            });
+            if(p==='home') { checkStockUI('Zygame'); }
+            if(p==='admin-cards') renderAdminCards();
+            if(p==='admin-keys') { updateAdminTime(); renderStockReport(); }
+            if(p==='history') renderHistory();
+            document.getElementById('sidebar').classList.remove('active');
+        }
+
+        function renderHistory() {
+            let h = "";
+            (data.orders[data.currentUser]||[]).forEach(o => {
+                h += `<div class="card p-info"><b>${o.name}</b><br><div class="key-view">${o.key}</div></div>`;
+            });
+            document.getElementById('history-list').innerHTML = h || "Chưa mua gì";
+        }
+
+        function updateBalanceUI() { document.getElementById('top-balance').innerText = data.users[data.currentUser].balance.toLocaleString() + "đ"; }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+
+        window.onload = () => { if(data.currentUser) loginUI(); };
+    </script>
+</body>
+</html>
